@@ -78,8 +78,10 @@ class EmpresaController
         ];
     }
 
-    public function criar(array $data): array
+    public function criar(): array
     {
+        $data = json_decode(file_get_contents('php://input'), true);
+
         // Validação básica dos dados
         // @TODO Implementar validação de CNPJ
         if (empty($data['cnpj'])) {
@@ -129,8 +131,10 @@ class EmpresaController
         ];
     }
 
-    public function atualizar(int $id, array $data): array
+    public function atualizar(int $id): array
     {
+        $data = json_decode(file_get_contents('php://input'), true);
+
         // Validação básica dos dados
         if (empty($data['cnpj'])) {
             return [
