@@ -1,0 +1,23 @@
+### CREATE - Inserir uma empresa
+POST http://api/empresas HTTP/1.1
+Content-Type: application/json
+
+{"cnpj": "60742855000110"}
+
+### READ - Listar todas as empresas
+GET http://api/empresas HTTP/1.1
+
+### READ - Filtrar empresas baseadas no parâmetro CNPJ
+GET http://api/empresas?cnpj=60742855000110 HTTP/1.1
+
+### READ - Buscar uma empresa pela id
+GET http://api/empresas/1 HTTP/1.1
+
+### UPDATE - Atualizar uma empresa
+PUT http://api/empresas/1 HTTP/1.1
+Content-Type: application/json
+
+{"cnpj": "60742855000110", "razao_social": "ASSOCIACAO SANTA MARCELINA"}
+
+### DELETE - Excluir uma empresa
+DELETE http://api/empresas/1 HTTP/1.1
