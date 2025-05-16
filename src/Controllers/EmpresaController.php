@@ -101,8 +101,8 @@ class EmpresaController
 
         if (!isset($response['body']['razao_social'])) {
             return [
-                'statusCode' => Http::INTERNAL_SERVER_ERROR,
-                'message' => $response['error'] ?? 'Falha ao buscar dados da empresa',
+                'statusCode' => $response['status'] ?? Http::INTERNAL_SERVER_ERROR,
+                'message' => $response['body']['message'] ?? $response['error'] ?? 'Falha ao buscar dados da empresa na Brasil API',
             ];
         }
 
@@ -113,7 +113,7 @@ class EmpresaController
         if ($empresaId === false) {
             return [
                 'statusCode' => Http::INTERNAL_SERVER_ERROR,
-                'message' => 'Não foi possível criar a empresa',
+                'message' => 'Falha ao inserir a empresa no banco de dados',
             ];
         }
 

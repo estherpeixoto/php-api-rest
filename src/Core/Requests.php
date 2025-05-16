@@ -44,12 +44,19 @@ class Requests
         // Encerra a sessão cURL
         curl_close($ch);
 
-        // Retorna um array com status, corpo e possível erro
+        if ($error) {
+            return [
+                'status' => null,
+                'body' => null,
+                'error' => $error,
+            ];
+        }
+
+        // Retorna um array com status e corpo
         return [
             'status' => $httpStatus,
             'body' => json_decode($responseBody, true), // tenta decodificar se for JSON
-            'raw' => $responseBody, // mantém bruto também, caso precise
-            'error' => $error ?: null,
+            'error' => null,
         ];
     }
 }
