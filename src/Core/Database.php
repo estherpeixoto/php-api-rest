@@ -36,7 +36,7 @@ class Database
             $host = $_ENV['DB_HOST'];
             $port = $_ENV['DB_PORT'];
             $dbName = $_ENV['DB_DATABASE'];
-            $username = $_ENV['DB_USERNAME'];
+            $username = $_ENV['DB_USER'];
             $password = $_ENV['DB_PASSWORD'];
 
             // Validação básica das variáveis
