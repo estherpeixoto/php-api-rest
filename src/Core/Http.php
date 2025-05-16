@@ -24,9 +24,10 @@ final class Http
     // Não é comum em APIs REST, e sim em projetos web tradicionais
 
     // 4xx Client Error
-    public const BAD_REQUEST = 400; // Requisição inválida (sintaxe, dados faltando, etc)
-    public const NOT_FOUND   = 404; // Recurso não existe
-    public const CONFLICT    = 409; // Conflito com o estado atual do recurso (ex: duplicidade)
+    public const BAD_REQUEST        = 400; // Requisição inválida (sintaxe, dados faltando, etc)
+    public const NOT_FOUND          = 404; // Recurso não existe
+    public const METHOD_NOT_ALLOWED = 405; // Recurso existe, mas não para o método HTTP informado
+    public const CONFLICT           = 409; // Conflito com o estado atual do recurso (ex: duplicidade)
 
     // 5xx Server Error
     public const INTERNAL_SERVER_ERROR = 500; // Erro genérico no servidor

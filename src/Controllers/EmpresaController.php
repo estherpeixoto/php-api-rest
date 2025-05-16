@@ -32,7 +32,7 @@ class EmpresaController
                 $empresas = $this->model->findByCNPJ($cnpj);
             } else {
                 return [
-                    'status' => Http::BAD_REQUEST,
+                    'statusCode' => Http::BAD_REQUEST,
                     'message' => 'O campo "cnpj" é obrigatório',
                 ];
             }
@@ -42,23 +42,20 @@ class EmpresaController
 
         if ($empresas === false) {
             return [
-                'status' => Http::INTERNAL_SERVER_ERROR,
+                'statusCode' => Http::INTERNAL_SERVER_ERROR,
                 'message' => 'Erro ao listar empresas',
             ];
         }
 
         if (count($empresas) > 0) {
             return [
-                'status' => Http::OK,
+                'statusCode' => Http::OK,
                 'message' => 'Sucesso',
                 'data' => $empresas,
             ];
         }
 
-        return [
-            'status' => Http::NO_CONTENT,
-            'message' => 'Nenhuma empresa encontrada',
-        ];
+        return ['statusCode' => Http::NO_CONTENT];
     }
 
     public function buscarPorId(int $id): array
@@ -67,13 +64,13 @@ class EmpresaController
 
         if ($empresa === false) {
             return [
-                'status' => Http::NOT_FOUND,
+                'statusCode' => Http::NOT_FOUND,
                 'message' => 'Empresa não existe',
             ];
         }
 
         return [
-            'status' => Http::OK,
+            'statusCode' => Http::OK,
             'data' => $empresa,
         ];
     }
@@ -84,7 +81,7 @@ class EmpresaController
         // @TODO Implementar validação de CNPJ
         if (empty($data['cnpj'])) {
             return [
-                'status' => Http::BAD_REQUEST,
+                'statusCode' => Http::BAD_REQUEST,
                 'message' => 'O campo "cnpj" é obrigatório',
             ];
         }
@@ -94,7 +91,7 @@ class EmpresaController
 
         if (count($empresas) > 0) {
             return [
-                'status' => Http::CONFLICT,
+                'statusCode' => Http::CONFLICT,
                 'message' => "A empresa {{$data['cnpj']}} já está cadastrada",
             ];
         }
@@ -104,8 +101,8 @@ class EmpresaController
 
         if (!isset($response['body']['razao_social'])) {
             return [
-                'status' => Http::INTERNAL_SERVER_ERROR,
-                'message' => $response['error'] ?? 'Falha ao buscar dados da empresa',
+                'statusCode' => $response['status'] ?? Http::INTERNAL_SERVER_ERROR,
+                'message' => $response['body']['message'] ?? $response['error'] ?? 'Falha ao buscar dados da empresa na Brasil API',
             ];
         }
 
@@ -115,13 +112,13 @@ class EmpresaController
 
         if ($empresaId === false) {
             return [
-                'status' => Http::INTERNAL_SERVER_ERROR,
-                'message' => 'Não foi possível criar a empresa',
+                'statusCode' => Http::INTERNAL_SERVER_ERROR,
+                'message' => 'Falha ao inserir a empresa no banco de dados',
             ];
         }
 
         return [
-            'status' => Http::CREATED,
+            'statusCode' => Http::CREATED,
             'message' => 'Empresa criada com sucesso',
             'data' => [
                 'id' => $empresaId,
@@ -134,7 +131,7 @@ class EmpresaController
         // Validação básica dos dados
         if (empty($data['cnpj'])) {
             return [
-                'status' => Http::BAD_REQUEST,
+                'statusCode' => Http::BAD_REQUEST,
                 'message' => 'O campo "cnpj" é obrigatório',
             ];
         }
@@ -143,20 +140,20 @@ class EmpresaController
 
         if ($empresa === false) {
             return [
-                'status' => Http::NOT_FOUND,
+                'statusCode' => Http::NOT_FOUND,
                 'message' => 'Empresa não existe',
             ];
         }
 
         if ($this->model->update($id, $data)) {
             return [
-                'status' => Http::OK,
+                'statusCode' => Http::OK,
                 'message' => 'Empresa atualizada com sucesso',
             ];
         }
 
         return [
-            'status' => Http::INTERNAL_SERVER_ERROR,
+            'statusCode' => Http::INTERNAL_SERVER_ERROR,
             'message' => 'Não foi possível atualizar a empresa',
         ];
     }
@@ -167,20 +164,20 @@ class EmpresaController
 
         if ($empresa === false) {
             return [
-                'status' => Http::NOT_FOUND,
+                'statusCode' => Http::NOT_FOUND,
                 'message' => 'Empresa não existe',
             ];
         }
 
         if ($this->model->delete($id)) {
             return [
-                'status' => Http::OK,
+                'statusCode' => Http::OK,
                 'message' => 'Empresa excluída com sucesso',
             ];
         }
 
         return [
-            'status' => Http::INTERNAL_SERVER_ERROR,
+            'statusCode' => Http::INTERNAL_SERVER_ERROR,
             'message' => 'Erro ao tentar excluir a empresa',
         ];
     }
