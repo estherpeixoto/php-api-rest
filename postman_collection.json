@@ -1,0 +1,497 @@
+{
+	"info": {
+		"_postman_id": "bd82c206-0b61-4097-976d-8e0cd5ebe9be",
+		"name": "Mini curso FASM",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "33532201",
+		"_collection_link": "https://estherpeixoto.postman.co/workspace/Team-Workspace~e28f5ebe-9875-4119-8569-e2e047ddf36d/collection/33532201-bd82c206-0b61-4097-976d-8e0cd5ebe9be?action=share&source=collection_link&creator=33532201"
+	},
+	"item": [
+		{
+			"name": "CREATE",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"cnpj\": \"60742855000110\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://api/empresas",
+					"protocol": "http",
+					"host": [
+						"api"
+					],
+					"path": [
+						"empresas"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "SUCCESS",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"cnpj\": \"60742855000110\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://api/empresas",
+							"protocol": "http",
+							"host": [
+								"api"
+							],
+							"path": [
+								"empresas"
+							]
+						}
+					},
+					"status": "Created",
+					"code": 201,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Date",
+							"value": "Fri, 16 May 2025 16:29:50 GMT"
+						},
+						{
+							"key": "Server",
+							"value": "Apache/2.4.62 (Win64) PHP/8.3.14 mod_fcgid/2.3.10-dev"
+						},
+						{
+							"key": "X-Powered-By",
+							"value": "PHP/8.3.14"
+						},
+						{
+							"key": "Content-Length",
+							"value": "109"
+						},
+						{
+							"key": "Keep-Alive",
+							"value": "timeout=5, max=100"
+						},
+						{
+							"key": "Connection",
+							"value": "Keep-Alive"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=utf-8"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"statusCode\": 201,\n    \"message\": \"Empresa criada com sucesso\",\n    \"data\": {\n        \"id\": \"1\"\n    }\n}"
+				},
+				{
+					"name": "BAD REQUEST - validação input",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"cnpj\": \"\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://api/empresas",
+							"protocol": "http",
+							"host": [
+								"api"
+							],
+							"path": [
+								"empresas"
+							]
+						}
+					},
+					"status": "Bad Request",
+					"code": 400,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Date",
+							"value": "Fri, 16 May 2025 16:29:05 GMT"
+						},
+						{
+							"key": "Server",
+							"value": "Apache/2.4.62 (Win64) PHP/8.3.14 mod_fcgid/2.3.10-dev"
+						},
+						{
+							"key": "X-Powered-By",
+							"value": "PHP/8.3.14"
+						},
+						{
+							"key": "Content-Length",
+							"value": "76"
+						},
+						{
+							"key": "Connection",
+							"value": "close"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=utf-8"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"statusCode\": 400,\n    \"message\": \"O campo \\\"cnpj\\\" é obrigatório\"\n}"
+				},
+				{
+					"name": "CONFLICT - empresa já cadastrada",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"cnpj\": \"60742855000110\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://api/empresas",
+							"protocol": "http",
+							"host": [
+								"api"
+							],
+							"path": [
+								"empresas"
+							]
+						}
+					},
+					"status": "Conflict",
+					"code": 409,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Date",
+							"value": "Fri, 16 May 2025 16:30:14 GMT"
+						},
+						{
+							"key": "Server",
+							"value": "Apache/2.4.62 (Win64) PHP/8.3.14 mod_fcgid/2.3.10-dev"
+						},
+						{
+							"key": "X-Powered-By",
+							"value": "PHP/8.3.14"
+						},
+						{
+							"key": "Content-Length",
+							"value": "91"
+						},
+						{
+							"key": "Keep-Alive",
+							"value": "timeout=5, max=100"
+						},
+						{
+							"key": "Connection",
+							"value": "Keep-Alive"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=utf-8"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"statusCode\": 409,\n    \"message\": \"A empresa {60742855000110} já está cadastrada\"\n}"
+				},
+				{
+					"name": "BAD REQUEST - validação da API externa",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"cnpj\": \"444444444222\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://api/empresas",
+							"protocol": "http",
+							"host": [
+								"api"
+							],
+							"path": [
+								"empresas"
+							]
+						}
+					},
+					"status": "Bad Request",
+					"code": 400,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Date",
+							"value": "Fri, 16 May 2025 16:33:17 GMT"
+						},
+						{
+							"key": "Server",
+							"value": "Apache/2.4.62 (Win64) PHP/8.3.14 mod_fcgid/2.3.10-dev"
+						},
+						{
+							"key": "X-Powered-By",
+							"value": "PHP/8.3.14"
+						},
+						{
+							"key": "Content-Length",
+							"value": "72"
+						},
+						{
+							"key": "Connection",
+							"value": "close"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=utf-8"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"statusCode\": 400,\n    \"message\": \"CNPJ 444444444222 inválido.\"\n}"
+				},
+				{
+					"name": "SERVER ERROR - falha na API externa",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"cnpj\": \"sadadas\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://api/empresas",
+							"protocol": "http",
+							"host": [
+								"api"
+							],
+							"path": [
+								"empresas"
+							]
+						}
+					},
+					"status": "Internal Server Error",
+					"code": 500,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Date",
+							"value": "Fri, 16 May 2025 16:55:53 GMT"
+						},
+						{
+							"key": "Server",
+							"value": "Apache/2.4.62 (Win64) PHP/8.3.14 mod_fcgid/2.3.10-dev"
+						},
+						{
+							"key": "X-Powered-By",
+							"value": "PHP/8.3.14"
+						},
+						{
+							"key": "Content-Length",
+							"value": "85"
+						},
+						{
+							"key": "Connection",
+							"value": "close"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=utf-8"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"statusCode\": 500,\n    \"message\": \"Could not resolve host: brassilapi.com.br\"\n}"
+				},
+				{
+					"name": "SERVER ERROR - falha no banco",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"cnpj\": \"60742855000110\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://api/empresas",
+							"protocol": "http",
+							"host": [
+								"api"
+							],
+							"path": [
+								"empresas"
+							]
+						}
+					},
+					"status": "Internal Server Error",
+					"code": 500,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Date",
+							"value": "Fri, 16 May 2025 16:35:50 GMT"
+						},
+						{
+							"key": "Server",
+							"value": "Apache/2.4.62 (Win64) PHP/8.3.14 mod_fcgid/2.3.10-dev"
+						},
+						{
+							"key": "X-Powered-By",
+							"value": "PHP/8.3.14"
+						},
+						{
+							"key": "Content-Length",
+							"value": "88"
+						},
+						{
+							"key": "Connection",
+							"value": "close"
+						},
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=utf-8"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"statusCode\": 500,\n    \"message\": \"Falha ao inserir a empresa no banco de dados\"\n}"
+				}
+			]
+		},
+		{
+			"name": "READ - Find all",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://api/empresas",
+					"protocol": "http",
+					"host": [
+						"api"
+					],
+					"path": [
+						"empresas"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "READ - Find by param",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://api/empresas?cnpj=60742855000110",
+					"protocol": "http",
+					"host": [
+						"api"
+					],
+					"path": [
+						"empresas"
+					],
+					"query": [
+						{
+							"key": "cnpj",
+							"value": "60742855000110"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "READ - Find by ID",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://api/empresas/2",
+					"protocol": "http",
+					"host": [
+						"api"
+					],
+					"path": [
+						"empresas",
+						"2"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "UPDATE",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"cnpj\": \"60742855000110\",\r\n    \"razao_social\": \"ASSOCIACAO SANTA MARCELINA\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://api/empresas/2",
+					"protocol": "http",
+					"host": [
+						"api"
+					],
+					"path": [
+						"empresas",
+						"2"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "DELETE",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://api/empresas/2",
+					"protocol": "http",
+					"host": [
+						"api"
+					],
+					"path": [
+						"empresas",
+						"2"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
