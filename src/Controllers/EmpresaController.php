@@ -2,183 +2,200 @@
 
 namespace App\Controllers;
 
-use App\Core\Http;
-use App\Core\Requests;
+use App\Core\Request;
+use App\Core\Response;
 use App\Models\EmpresaModel;
 
 class EmpresaController
 {
-    private EmpresaModel $model;
-
-    public function __construct()
+    // POST /empresas
+    public function criar()
     {
-        $this->model = new EmpresaModel;
-    }
+        // Lê e converte o corpo da requisição (JSON) em array associativo
+        $dadosJson = Request::getJson();
 
-    public function listar(): array
-    {
-        // Exemplo de como pegar o parâmetro 'cnpj' da query string
-        $cnpj = $_GET['cnpj'] ?? null;
-
-        // Validação simples: se existir e for string não vazia
-        if (!is_null($cnpj) && is_string($cnpj)) {
-            $cnpj = preg_replace('/[%_]/', '', $cnpj);
-
-            if (trim($cnpj) !== '') {
-                // Sanitiza: remove espaços desnecessários, % e _
-                $cnpj = preg_replace('/[%_]/', '', trim($cnpj));
-
-                // Chama o model com o cnpj
-                $empresas = $this->model->findByCNPJ($cnpj);
-            } else {
-                return [
-                    'statusCode' => Http::BAD_REQUEST,
-                    'message' => 'O campo "cnpj" é obrigatório',
-                ];
-            }
-        } else {
-            $empresas = $this->model->findAll();
-        }
-
-        if ($empresas === false) {
-            return [
-                'statusCode' => Http::INTERNAL_SERVER_ERROR,
-                'message' => 'Erro ao listar empresas',
-            ];
-        }
-
-        if (count($empresas) > 0) {
-            return [
-                'statusCode' => Http::OK,
-                'message' => 'Sucesso',
-                'data' => $empresas,
-            ];
-        }
-
-        return ['statusCode' => Http::NO_CONTENT];
-    }
-
-    public function buscarPorId(int $id): array
-    {
-        $empresa = $this->model->find($id);
-
-        if ($empresa === false) {
-            return [
-                'statusCode' => Http::NOT_FOUND,
-                'message' => 'Empresa não existe',
-            ];
-        }
-
-        return [
-            'statusCode' => Http::OK,
-            'data' => $empresa,
-        ];
-    }
-
-    public function criar(array $data): array
-    {
         // Validação básica dos dados
-        // @TODO Implementar validação de CNPJ
-        if (empty($data['cnpj'])) {
-            return [
-                'statusCode' => Http::BAD_REQUEST,
-                'message' => 'O campo "cnpj" é obrigatório',
-            ];
+        if (empty($dadosJson['cnpj'])) {
+            return Response::json([
+                'status' => 400,
+                'message' => 'O campo {cnpj} é obrigatório',
+            ]);
         }
 
-        // Verifica se o CNPJ já está cadastrado
-        $empresas = $this->model->findByCNPJ($data['cnpj']);
+        // Consumindo uma API REST
+        $url = "https://brasilapi.com.br/api/cnpj/v1/{$dadosJson['cnpj']}";
 
-        if (count($empresas) > 0) {
-            return [
-                'statusCode' => Http::CONFLICT,
-                'message' => "A empresa {{$data['cnpj']}} já está cadastrada",
-            ];
+        $ch = curl_init(); // Inicia sessão cURL
+
+        curl_setopt_array($ch, [
+            CURLOPT_URL => $url,             // Define a URL
+            CURLOPT_RETURNTRANSFER => true,  // Captura a resposta como string
+            CURLOPT_SSL_VERIFYPEER => false, // Desativa SSL (útil para localhost)
+        ]);
+
+        $response = curl_exec($ch); // Executa a requisição
+        curl_close($ch);            // Encerra a sessão cURL
+
+        // Converte a resposta da API de string para array associativo
+        $response = json_decode($response, true);
+
+        if (!isset($response['razao_social'])) {
+            // Se a resposta não contiver a razão social, retorna erro
+            return Response::json([
+                'status' => 500,
+                'message' => "Não foi possível buscar a razão social da empresa {{$dadosJson['cnpj']}}",
+            ]);
         }
 
-        // Buscar a razão social da empresa usando uma API externa
-        $response = Requests::send('GET', "https://brasilapi.com.br/api/cnpj/v1/{$data['cnpj']}");
+        // Instancia o model responsável por lidar com o banco de dados
+        $model = new EmpresaModel();
 
-        if (!isset($response['body']['razao_social'])) {
-            return [
-                'statusCode' => $response['status'] ?? Http::INTERNAL_SERVER_ERROR,
-                'message' => $response['body']['message'] ?? $response['error'] ?? 'Falha ao buscar dados da empresa na Brasil API',
-            ];
-        }
-
-        $data['razao_social'] = $response['body']['razao_social'];
-
-        $empresaId = $this->model->insert($data);
+        // Insere a nova empresa no banco com o CNPJ enviado e a razão social retornada da API
+        $empresaId = $model->insert([
+            'cnpj' => $dadosJson['cnpj'],
+            'razao_social' => $response['razao_social'],
+        ]);
 
         if ($empresaId === false) {
-            return [
-                'statusCode' => Http::INTERNAL_SERVER_ERROR,
-                'message' => 'Falha ao inserir a empresa no banco de dados',
-            ];
+            // Se falhar ao inserir no banco, retorna erro do PDO
+            return Response::json([
+                'status' => 500,
+                'message' => $model->error,
+            ]);
         }
 
-        return [
-            'statusCode' => Http::CREATED,
+        // Retorna sucesso com o ID da nova empresa inserida
+        return Response::json([
+            'status' => 201,
             'message' => 'Empresa criada com sucesso',
             'data' => [
                 'id' => $empresaId,
             ],
-        ];
+        ]);
     }
 
-    public function atualizar(int $id, array $data): array
+    // src/Controllers/EmpresaController.php
+    public function listar()
     {
-        // Validação básica dos dados
-        if (empty($data['cnpj'])) {
-            return [
-                'statusCode' => Http::BAD_REQUEST,
-                'message' => 'O campo "cnpj" é obrigatório',
-            ];
+        // Instancia o model responsável por lidar com o banco de dados
+        $model = new EmpresaModel();
+
+        // Chama o método do model que retorna todas as empresas
+        $empresas = $model->findAll();
+
+        // Verifica se houve erro na consulta
+        if ($empresas === false) {
+            return Response::json([
+                'status' => 500,
+                'message' => $model->error,
+            ]);
         }
 
-        $empresa = $this->model->find($id);
+        // Retorna as empresas com status 200 e mensagem de sucesso
+        return Response::json([
+            'status' => 200,
+            'message' => 'Sucesso',
+            'data' => $empresas,
+        ]);
+    }
+
+    // src/Controllers/EmpresaController.php
+    public function buscarPorId(int $id)
+    {
+        // Instancia o model responsável por lidar com o banco de dados
+        $model = new EmpresaModel();
+
+        // Busca uma empresa específica pelo ID fornecido
+        $empresa = $model->find($id);
 
         if ($empresa === false) {
-            return [
-                'statusCode' => Http::NOT_FOUND,
+            // Se não encontrar a empresa, retorna status 404 (não encontrado)
+            return Response::json([
+                'status' => 404,
                 'message' => 'Empresa não existe',
-            ];
+            ]);
         }
 
-        if ($this->model->update($id, $data)) {
-            return [
-                'statusCode' => Http::OK,
-                'message' => 'Empresa atualizada com sucesso',
-            ];
-        }
-
-        return [
-            'statusCode' => Http::INTERNAL_SERVER_ERROR,
-            'message' => 'Não foi possível atualizar a empresa',
-        ];
+        // Se a empresa for encontrada, retorna os dados com status 200
+        return Response::json([
+            'status' => 200,
+            'message' => 'Sucesso',
+            'data' => $empresa,
+        ]);
     }
 
+    // src/Controllers/EmpresaController.php
+    public function atualizar(int $id)
+    {
+        // Lê e converte o corpo da requisição (JSON) em array associativo
+        $dadosJson = Request::getJson();
+
+        // Validação básica dos dados
+        if (empty($dadosJson['cnpj']) || empty($dadosJson['razao_social'])) {
+            return Response::json([
+                'status' => 400,
+                'message' => 'Os campos {cnpj} e {razao_social} são obrigatórios',
+            ]);
+        }
+
+        // Instancia o model responsável por lidar com o banco de dados
+        $model = new EmpresaModel();
+
+        // Verifica se existe uma empresa com o ID fornecido
+        $empresa = $model->find($id);
+
+        if ($empresa === false) {
+            // Se não encontrar a empresa, retorna status 404 (não encontrado)
+            return Response::json([
+                'status' => 404,
+                'message' => 'Empresa não existe',
+            ]);
+        }
+
+        if ($model->update($id, $dadosJson)) {
+            // Retorna mensagem de sucesso e status 200
+            return Response::json([
+                'status' => 200,
+                'message' => 'Empresa atualizada com sucesso',
+            ]);
+        }
+
+        // Se falhar ao atualizar no banco, retorna erro do PDO
+        return Response::json([
+            'status' => 500,
+            'message' => $model->error,
+        ]);
+    }
+
+    // src/Controllers/EmpresaController.php
     public function excluir(int $id): array
     {
-        $empresa = $this->model->find($id);
+        // Instancia o model responsável por lidar com o banco de dados
+        $model = new EmpresaModel();
+
+        // Verifica se existe uma empresa com o ID fornecido
+        $empresa = $model->find($id);
 
         if ($empresa === false) {
-            return [
-                'statusCode' => Http::NOT_FOUND,
+            // Se não encontrar a empresa, retorna status 404 (não encontrado)
+            return Response::json([
+                'status' => 404,
                 'message' => 'Empresa não existe',
-            ];
+            ]);
         }
 
-        if ($this->model->delete($id)) {
-            return [
-                'statusCode' => Http::OK,
+        if ($model->delete($id)) {
+            // Retorna mensagem de sucesso e status 200
+            return Response::json([
+                'status' => 200,
                 'message' => 'Empresa excluída com sucesso',
-            ];
+            ]);
         }
 
-        return [
-            'statusCode' => Http::INTERNAL_SERVER_ERROR,
-            'message' => 'Erro ao tentar excluir a empresa',
-        ];
+        // Se falhar ao excluir no banco, retorna erro do PDO
+        return Response::json([
+            'status' => 500,
+            'message' => $model->error,
+        ]);
     }
 }

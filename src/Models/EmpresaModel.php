@@ -3,102 +3,137 @@
 namespace App\Models;
 
 use App\Core\Database;
+use Exception;
 use PDO;
-use PDOException;
 
-// @TODO Criar uma forma de buscar mensagens de erro do model
 class EmpresaModel
 {
-    public PDO $db;
-
-    public function __construct()
-    {
-        $this->db = Database::getInstance();
-    }
-
-    public function findAll()
-    {
-        try {
-            $stmt = $this->db->query('SELECT id, razao_social, cnpj FROM empresas ORDER BY razao_social LIMIT 10');
-            return $stmt->fetchAll();
-        } catch (PDOException $e) {
-            error_log('Erro PDO: ' . $e->getMessage());
-            return false;
-        }
-    }
-
-    public function findByCNPJ($cnpj)
-    {
-        try {
-            $stmt = $this->db->prepare('SELECT id, razao_social, cnpj FROM empresas WHERE cnpj = :cnpj ORDER BY razao_social');
-            $stmt->bindParam(':cnpj', $cnpj);
-            $stmt->execute();
-
-            return $stmt->fetchAll();
-        } catch (PDOException $e) {
-            error_log('Erro PDO: ' . $e->getMessage());
-            return false;
-        }
-    }
-
-    public function find(int $id)
-    {
-        try {
-            $stmt = $this->db->prepare('SELECT id, razao_social, cnpj FROM empresas WHERE id = :id');
-            $stmt->bindParam(':id', $id, PDO::PARAM_INT);
-
-            $stmt->execute();
-
-            return $stmt->fetch();
-        } catch (PDOException $e) {
-            error_log('Erro PDO: ' . $e->getMessage());
-            return false;
-        }
-    }
+    // Atributo público que armazena uma mensagem de erro, se ocorrer
+    // Pode ser null
+    public ?string $error = null;
 
     public function insert(array $data)
     {
         try {
-            $stmt = $this->db->prepare('INSERT INTO empresas (cnpj, razao_social) VALUES (:cnpj, :razao_social)');
+            // Obtém a instância da conexão com o banco (PDO)
+            $db = Database::getInstance();
+
+            // Prepara uma query SQL com parâmetros nomeados
+            $stmt = $db->prepare('INSERT INTO empresas (cnpj, razao_social) VALUES (:cnpj, :razao_social)');
+
+            // Substitui os parâmetros da query pelos dados fornecidos
             $stmt->bindParam(':cnpj', $data['cnpj']);
             $stmt->bindParam(':razao_social', $data['razao_social']);
 
             if ($stmt->execute()) {
-                return $this->db->lastInsertId();
+                // Se a inserção foi bem-sucedida, retorna o ID gerado
+                return $db->lastInsertId();
             }
-
-            return false;
-        } catch (PDOException $e) {
-            error_log('Erro PDO: ' . $e->getMessage());
-            return false;
+        } catch (Exception $exception) {
+            // Em caso de erro, armazena a mensagem para depuração
+            $this->error = $exception->getMessage();
         }
+
+        // Se algo falhou, retorna false
+        return false;
     }
 
+    // src/Models/EmpresaModel.php
+    public function findAll()
+    {
+        try {
+            // Obtém a instância da conexão com o banco (PDO)
+            $db = Database::getInstance();
+
+            // Executa a consulta SQL que seleciona as empresas ordenadas por razão social
+            // Limita o resultado a no máximo 10 registros
+            $stmt = $db->query('SELECT id, razao_social, cnpj FROM empresas ORDER BY razao_social LIMIT 10');
+
+            // Retorna todos os resultados como array associativo
+            return $stmt->fetchAll();
+        } catch (Exception $exception) {
+            // Em caso de erro, armazena a mensagem para depuração
+            $this->error = $exception->getMessage();
+        }
+
+        // Se algo falhou, retorna false
+        return false;
+    }
+
+    // src/Models/EmpresaModel.php
+    public function find(int $id)
+    {
+        try {
+            // Obtém a instância da conexão com o banco (PDO)
+            $db = Database::getInstance();
+
+            // Prepara uma consulta SQL para buscar a empresa com base no ID
+            $stmt = $db->prepare('SELECT id, razao_social, cnpj FROM empresas WHERE id = :id');
+
+            // Substitui o parâmetro :id pelo valor recebido, garantindo segurança contra SQL Injection
+            $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+
+            // Executa a consulta no banco
+            $stmt->execute();
+
+            // Retorna os dados da empresa como um array associativo
+            return $stmt->fetch();
+        } catch (Exception $exception) {
+            // Em caso de erro, armazena a mensagem para depuração
+            $this->error = $exception->getMessage();
+        }
+
+        // Se algo falhou, retorna false
+        return false;
+    }
+
+    // src/Models/EmpresaModel.php
     public function update(int $id, array $data)
     {
         try {
-            $stmt = $this->db->prepare('UPDATE empresas SET cnpj = :cnpj, razao_social = :razao_social WHERE id = :id');
+            // Obtém a instância da conexão com o banco (PDO)
+            $db = Database::getInstance();
+
+            // Prepara uma consulta SQL para atualizar a empresa
+            $stmt = $db->prepare('UPDATE empresas SET cnpj = :cnpj, razao_social = :razao_social WHERE id = :id');
+
+            // Substitui os parâmetros de forma segura contra SQL Injection
             $stmt->bindParam(':cnpj', $data['cnpj']);
             $stmt->bindParam(':razao_social', $data['razao_social']);
             $stmt->bindParam(':id', $id, PDO::PARAM_INT);
 
+            // Executa o update no banco
             return $stmt->execute();
-        } catch (PDOException $e) {
-            error_log('Erro PDO: ' . $e->getMessage());
-            return false;
+        } catch (Exception $exception) {
+            // Em caso de erro, armazena a mensagem para depuração
+            $this->error = $exception->getMessage();
         }
+
+        // Se algo falhou, retorna false
+        return false;
     }
 
+    // src/Models/EmpresaModel.php
     public function delete(int $id)
     {
         try {
-            $stmt = $this->db->prepare('DELETE FROM empresas WHERE id = :id');
+            // Obtém a instância da conexão com o banco (PDO)
+            $db = Database::getInstance();
+
+            // Prepara uma consulta SQL para excluir a empresa
+            $stmt = $db->prepare('DELETE FROM empresas WHERE id = :id');
+
+            // Substitui o parâmetro :id de forma segura contra SQL Injection
             $stmt->bindParam(':id', $id, PDO::PARAM_INT);
 
+            // Executa o delete no banco
             return $stmt->execute();
-        } catch (PDOException $e) {
-            error_log('Erro PDO: ' . $e->getMessage());
-            return false;
+        } catch (Exception $exception) {
+            // Em caso de erro, armazena a mensagem para depuração
+            $this->error = $exception->getMessage();
         }
+
+        // Se algo falhou, retorna false
+        return false;
     }
 }

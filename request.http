@@ -1,0 +1,22 @@
+POST http://rest-api/empresas
+
+{"cnpj": "60742855000110"}
+
+###
+
+GET http://rest-api/empresas
+
+###
+
+GET http://rest-api/empresas/6
+
+
+###
+
+PUT http://rest-api/empresas/5
+
+{"cnpj": "60742855000110", "razao_social": "Testeee hahhahhaa"}
+
+###
+
+DELETE http://rest-api/empresas/6
